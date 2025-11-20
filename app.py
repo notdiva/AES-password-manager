@@ -56,15 +56,16 @@ def set_master_password(new_password):
     with open(MASTER_KEY_FILE, "w") as file:
         json.dump({"master_key": key_hash}, file)
 
-def verify_master_password(master_password):
-    if not os.path.exists("data.json") or os.path.getsize("data.json") == 0:
-        return False  # No data to verify
+def verify_master_password(password):
+    """Verify if the entered master password is correct."""
+    if not os.path.exists(MASTER_KEY_FILE):
+        return False
 
-    with open("data.json", "r") as file:
-        try:
-            data = json.load(file)
-        except json.JSONDecodeError:
-            return False
+    with open(MASTER_KEY_FILE, "r") as file:
+        data = json.load(file)
+        stored_key = data.get("master_key", "")
+
+    return stored_key == hashlib.sha256(password.encode()).hexdigest()
 
 # --------------------------
 # Password Generation & Strength Checker
